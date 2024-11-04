@@ -2,7 +2,7 @@
 
 This is an application which Fetches Job on regular interval and filters the jobs based on stale information and new information.
 
-Technology Used
+* Technology Used
 - React 
 - Material UI
 - Express Rest API
