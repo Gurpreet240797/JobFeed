@@ -5,7 +5,7 @@ const mockJobs = [
   {
     'title': 'Software Engineer',
     'company': 'Google',
-    'description': 'Work with a team of engineers to build software products.'
+    'description': 'Work with a team of engineers to build Google Docs.'
   },
   {
     'title': 'Software Engineer',
