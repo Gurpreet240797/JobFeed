@@ -1,0 +1,15 @@
+{
+  "name": "jobfeed",
+  "version": "1.0.0",
+  "description": "This is an application which Fetches Job on regular interval and filters the jobs based on stale information and new information.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cron": "^3.1.9"
+  }
+}
