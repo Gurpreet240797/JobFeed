@@ -1,11 +1,12 @@
 import { CronJob } from 'cron';
+import fetchGithub from './tasks/fetch-jobs.js';
 
 const job = new CronJob(
-	'* * * * * *', // cronTime
-	function () {
-		console.log('You will see this message every second');
-	}, // onTick
-	null, // onComplete
-	true, // start
-	'America/Los_Angeles' // timeZone
+	'* * * * *',
+	fetchGithub, 
+	null,
+	true,
+	'America/Los_Angeles'
 );
+
+job.start();

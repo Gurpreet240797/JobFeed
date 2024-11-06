@@ -33,3 +33,6 @@ Thumbs.db
 
 # Coverage directory used by tools like istanbul
 coverage/
+
+# Redis
+dump.rdb
