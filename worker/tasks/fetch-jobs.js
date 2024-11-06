@@ -6,6 +6,9 @@ const redis = new Redis();
 
 const fetchJobs = async () => {
   try {
+
+    console.log("Fetching Jobs...");
+
     let resultEmpty = false, page = 1;
     let allJobs = [];
     const maxPages = 10;
@@ -30,29 +33,22 @@ const fetchJobs = async () => {
 
     // filter algo
     const jrJobs = allJobs.filter(job => {
-        const jobTitle = job.levels[0].short_name;
-        
-        if (
-            jobTitle.includes('senior') ||
-            jobTitle.includes('internship') 
-        ) {
-            return false
-        } 
-        return true;
-    })
-
-    redis.set("jobs", jrJobs.map(job => JSON.stringify(job)));
+      const jobTitle = job.levels?.[0]?.short_name || '';
+      return !jobTitle.includes('senior') && !jobTitle.includes('internship');
+    });
 
 
-    redis.get("jobs", (err, result) => {
-      if (err) {
-        console.error(err);
-      } else {
-        console.log(result);
-      }
-});
+    console.log("Fetching complete !");
+    console.log("Storing jobs in Redis...");
+
+    await redis.set("jobs", JSON.stringify(jrJobs));
+    
+    console.log("Jobs fetched and stored in Redis");
   } catch (error) {
     console.error("Error fetching jobs:", error);
+  } finally {
+    redis.disconnect();
+    console.log("Redis connection closed. Exiting process.");
   }
 };
 
