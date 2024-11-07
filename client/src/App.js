@@ -1,16 +1,26 @@
+import { useEffect, useState } from 'react';
 import './App.css';
 import Jobs from './components/Jobs';
-import useFetchJobs from './hooks/useFetchJobs';
+
+const JOB_API_URL = '/api/jobs';
+
+async function fetchJobs(updateCb) {
+  const res = await fetch(JOB_API_URL);
+  let json = await res.json();
+
+  updateCb(json);
+}
 
 function App() {
-  const { jobs, loading, error } = useFetchJobs();
+  const [jobList, updateJobs] = useState([]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  useEffect(() => {
+    fetchJobs(updateJobs);
+  }, [])
 
   return (
     <div className="App">
-      <Jobs jobs={jobs} />
+      <Jobs jobs={jobList} />
     </div>
   );
 }

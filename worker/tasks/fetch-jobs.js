@@ -1,35 +1,29 @@
-import fetch from 'node-fetch';
-import Redis from 'ioredis';
+var fetch = require('node-fetch');
+var redis = require("redis"), client = redis.createClient();
+
+const {promisify} = require('util');
+const setAsync = promisify(client.set).bind(client);
 
 const baseURL = 'https://www.themuse.com/api/public/jobs';
-const redis = new Redis();
 
-const fetchJobs = async () => {
-  try {
+async function fetchJobs() {
 
-    console.log("Fetching Jobs...");
+    console.log('fetching jobs');
 
-    let resultEmpty = false, page = 1;
-    let allJobs = [];
-    const maxPages = 10;
+    let resultCount = 1, onPage = 0;
+    const allJobs = [];
 
-    while (!resultEmpty && page <= maxPages) {
-      const response = await fetch(`${baseURL}?page=${page}`);
-      
-      // Check if the response was successful
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      // Push new jobs to allJobs
-      allJobs.push(...data.results);
-
-      // Check if we received any results
-      resultEmpty = data.results.length === 0;
-      page++;
+    // fetch all pages
+    while(resultCount > 0) {
+        const res = await fetch(`${baseURL}?page=${onPage}`);
+        const jobs = await res.json();
+        allJobs.push(...jobs);
+        resultCount = jobs.length;
+        console.log('got', resultCount, 'jobs');
+        onPage++;
     }
+
+    console.log('got', allJobs.length, 'jobs total')
 
     // filter algo
     const jrJobs = allJobs.filter(job => {
@@ -37,19 +31,11 @@ const fetchJobs = async () => {
       return !jobTitle.includes('senior') && !jobTitle.includes('internship');
     });
 
+    console.log('filtered down to', jrJobs.length);
 
-    console.log("Fetching complete !");
-    console.log("Storing jobs in Redis...");
+    // set in redis
+    const success = await setAsync('github', JSON.stringify(jrJobs));
+    console.log({success});
+}
 
-    await redis.set("jobs", JSON.stringify(jrJobs));
-    
-    console.log("Jobs fetched and stored in Redis");
-  } catch (error) {
-    console.error("Error fetching jobs:", error);
-  } finally {
-    redis.disconnect();
-    console.log("Redis connection closed. Exiting process.");
-  }
-};
-
-fetchJobs();
+export default fetchJobs;
